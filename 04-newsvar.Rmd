@@ -95,7 +95,7 @@ head(areas)
 Quickly map to inspect:
 ```{r}
 tm_shape(areas) + tm_polygons(col = "gray80") +
-tm_shape(areas) + tm_polygons(col = "MetClnc", style = "pretty", alpha = 0.8) +   
+tm_shape(areas) + tm_polygons(fill = "MetClnc", fill.scale = tm_scale_intervals(style='pretty'), fill_alpha = 0.8) +   
   tm_shape(points) + tm_dots(size = 0.5) 
 ```
 
@@ -136,9 +136,9 @@ head(areas)
 Map density of buffers per census area:
 
 ```{r}
-tm_shape(areas) + tm_polygons(col = "bufferct", palette = "BuGn", n=5, style = "jenks") + 
-    tm_shape(ptbuffers) + tm_fill(col = "gray90", alpha=0.6) +
-    tm_shape(points) + tm_dots(col = "gray10", size = 0.3) 
+tm_shape(areas) + tm_polygons("bufferct", fill.scale=tm_scale_intervals(values = "brewer.bu_gn", n=5, style = "jenks")) + 
+    tm_shape(ptbuffers) + tm_fill("gray90", fill_alpha=0.6) +
+    tm_shape(points) + tm_dots("gray10", size = 0.3) 
 ```
 
 Let's review: our master area file now has total number resources by zip and total number of walkable service areas by zip. 
