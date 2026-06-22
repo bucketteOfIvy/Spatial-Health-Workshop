@@ -125,11 +125,13 @@ Sometimes we want to look at multiple maps at once. Write your mapping function 
 ```{r }
 tracts.4326 <- tm_shape(Chi_tracts) + 
   tm_fill(col = "gray90") +
-  tm_layout(frame = FALSE, title = "EPSG 4326")
+  tm_title("EPSG 4326") +
+  tm_layout(frame = FALSE)
 
 tracts.54019 <- tm_shape(Chi_tracts.54019) + 
-  tm_fill(col = "gray90") +  
-  tm_layout(frame = FALSE, title = "EPSG 54019")
+  tm_fill(col = "gray90") + 
+  tm_title("EPSG 54019")
+  tm_layout(frame = FALSE)
 
 tmap_arrange(tracts.4326, tracts.54019)
 ```

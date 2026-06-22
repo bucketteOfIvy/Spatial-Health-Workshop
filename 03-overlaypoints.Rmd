@@ -110,11 +110,12 @@ tmap_mode("plot")
 
 ## 1st layer (gets plotted first)
 tm_shape(Chi_Zipsf) + 
-  tm_polygons(col="Case.Rate...Cumulative", 
-              style="jenks", 
-              palette="brewer.bu_pu", 
-              n=4, 
-              title = "COVID Rt") + 
+  tm_polygons("Case.Rate...Cumulative",
+              fill.scale = tm_scale_intervals(style='jenks', 
+                                              values='brewer.bu_pu',
+                                              n=4),
+              fill.legend = tm_legend(title='COVID Rt')
+              ) + 
   
   ## 2nd layer (overlay)
   tm_shape(methadoneSf) + tm_dots(size = 0.2, col = "gray20") +
@@ -161,7 +162,8 @@ AffHousingSf <- st_as_sf(AffHousing,
 We can now map the data for a quick view -- does this look like Chicago, hopefully?
 
 ```{r, warning=FALSE}
-tm_shape(AffHousingSf) + tm_bubbles("Units", col = "purple", style = "sd")  
+tm_shape(AffHousingSf) + tm_bubbles("Units", fill = "purple", 
+                                    fill.scale = tm_scale_intervals(style='sd'))  
 ```
 
 ## Graduated Symbology
@@ -171,7 +173,7 @@ Previously we mapped points as dots. We literally used the `tm_dots()` function 
 ```{r}
 tm_shape(Chi_Zipsf) + 
   tm_polygons(col = "gray80") +
-  tm_shape(AffHousingSf) + tm_bubbles("Units", col = "purple") 
+  tm_shape(AffHousingSf) + tm_bubbles("Units", fill = "purple") 
 ```
 
 ## Style Final Map
@@ -181,11 +183,11 @@ Let's pull what we learned in the last tutorial, and map everything at once. Whi
 ```{r, message=FALSE}
 ## Zip Code Choropleth Map
   tm_shape(Chi_Zipsf) + 
-    tm_polygons(col="Case.Rate...Cumulative", 
-                style="jenks", 
-                palette="brewer.bu_pu", 
-                n=4, 
-                title = "COVID Rt") + 
+    tm_polygons("Case.Rate...Cumulative",
+                fill.scale = tm_scale_intervals(style='jenks',
+                                                values='brewer.bu_pu',
+                                                n=4),
+                fill.legend = tm_legend(title='COVID Rt')) + 
 
   ## Affordable Housing Unit Locations
   tm_shape(AffHousingSf) + tm_bubbles("Units") + 
