@@ -13,11 +13,11 @@ description: "This was developed by the Healthy Regions and Policies Lab."
 
 ## Background {-}
 
-The workbook is led by Marynia Kolak, Director of the [Healthy Regions & Policies Lab](http://www.healthyregions.org) (HEROP), currently based at the University of Illinois at Urbana Champaign. Workshops have been co-facilitated with Qinyun Lin, with past support from Susan Paykin when HEROP was at the University of Chicago. 
+The workbook is led by Marynia Kolak, Director of the [Healthy Regions & Policies Lab](http://www.healthyregions.org) (HEROP), currently based at the University of Illinois at Urbana-Champaign, and most recently co-facilitated with Ashlynn Wimer (Harvard T. H. Chan). Workshops have been co-facilitated with Qinyun Lin (University of Gothenburg) and Susan Paykin (University of Chicago). 
 
 This suite of tutorials was originally developed for a workshop at the 2021 R-Medicine Conference, and has sinced been updated for multiple workshops at the Society for Epidemiology Research Annual Meeting, and as a workshop at the Institute of Medicine at the University of Gothenburg (Göteborg). 
 
-Some coding snippets & data examples are from the phenomenal team of the [Opioid Environment Toolkit](https://geodacenter.github.io/opioid-environment-toolkit) (Moksha Menghaney, Qinyun Lin, Angela Li). The overall approach follows the Center for Spatial Data Science UChicago paradigm.
+Some coding snippets & data examples are from the phenomenal team of the [Opioid Environment Toolkit](https://geodacenter.github.io/opioid-environment-toolkit) (Moksha Menghaney, Qinyun Lin, Angela Li), with inspiration from the historic Center for Spatial Data Science training developed by Luc Anselin and Julia Koschinsky at the University of Chicago. 
 
 ### Access Resources {-}
 There are multiple resources linked with this workbook. Access the following as needed:
@@ -25,7 +25,7 @@ There are multiple resources linked with this workbook. Access the following as 
 - Data for the workshop: [Zip File](https://github.com/healthyregions/Spatial-Health-Workshop/blob/main/data/Data-2025.zip)
 - [Github repository](https://github.com/healthyregions/Spatial-Health-Workshop) of the workshop
 - Short link to this workbook: [go.illinois.edu/SpatialR]((https://go.illinois.edu/SpatialR)
-- Slide deck for latest workshop: [Sweden 2025](https://docs.google.com/presentation/d/1FDbxNdHZ4D75wRWKchArLYSGatzgEsDDJr2S2EzCfHs/edit?usp=sharing)
+- Slide deck for latest workshop: [SER 2026](https://docs.google.com/presentation/d/1WR3-d4IU-WDSVN4oFgFjxbZADtMAExWUBFmqVuvum84/edit?slide=id.gddd9c4a96c_1_138#slide=id.gddd9c4a96c_1_138)
 
 ### Environment Setup {-}
 
