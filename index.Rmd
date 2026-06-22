@@ -11,15 +11,16 @@ github-repo: rstudio/bookdown-demo
 description: "This was developed by the Healthy Regions and Policies Lab."
 ---
 
-## Background {-}
+## Overview {-}
 
-The workbook is led by Marynia Kolak, Director of the [Healthy Regions & Policies Lab](http://www.healthyregions.org) (HEROP), currently based at the University of Illinois at Urbana-Champaign, and most recently co-facilitated with Ashlynn Wimer (Harvard T. H. Chan). Workshops have been co-facilitated with Qinyun Lin (University of Gothenburg) and Susan Paykin (University of Chicago). 
+Measurements of neighborhood ‘social determinants of health’ are increasingly urgent in modern public health thinking, and are thought to drive and/or reinforce social and spatial inequities. Sometimes this necessitates an investigation of neighborhood health patterns, like premature mortality at the census tract scale.
 
-This suite of tutorials was originally developed for a workshop at the 2021 R-Medicine Conference, and has sinced been updated for multiple workshops at the Society for Epidemiology Research Annual Meeting, and as a workshop at the Institute of Medicine at the University of Gothenburg (Göteborg). 
+Sometimes we’re interested in area factors like poverty, access to affordable housing, distance to the nearest health provider, or polluting factories and how these factors magnify, moderate, or mediate individual level health. Spatial analysis is an important tool in uncovering the ways in which where people live, work, and play can influence health outcomes. This workshop will present an introduction to spatial analysis, mapping, and GIScience for health applications & spatial epidemiology using the open source R environment. 
 
-Some coding snippets & data examples are from the phenomenal team of the [Opioid Environment Toolkit](https://geodacenter.github.io/opioid-environment-toolkit) (Moksha Menghaney, Qinyun Lin, Angela Li), with inspiration from the historic Center for Spatial Data Science training developed by Luc Anselin and Julia Koschinsky at the University of Chicago. 
+During this interactive workshop, participants will be introduced to basic concepts in spatial data analysis, generate thematic maps visualizing neighborhood-level health phenomena, geocode and integrate community resource locations (such as health providers, schools, or sources of pollution) for further exploration, and calculate new spatial access variables. We will review how research questions and hypotheses are updated at each stage of exploratory spatial data analysis. Participants should have a basic understanding of the R environment but no experience is necessary with spatial data or R-spatial libraries.
 
-### Access Resources {-}
+## Environment Setup {-}
+
 There are multiple resources linked with this workbook. Access the following as needed:
 
 - Data for the workshop: [Zip File](https://github.com/healthyregions/Spatial-Health-Workshop/blob/main/data/Data-2025.zip)
@@ -27,7 +28,7 @@ There are multiple resources linked with this workbook. Access the following as 
 - Short link to this workbook: [go.illinois.edu/SpatialR]((https://go.illinois.edu/SpatialR)
 - Slide deck for latest workshop: [SER 2026](https://docs.google.com/presentation/d/1WR3-d4IU-WDSVN4oFgFjxbZADtMAExWUBFmqVuvum84/edit?slide=id.gddd9c4a96c_1_138#slide=id.gddd9c4a96c_1_138)
 
-### Environment Setup {-}
+### Software Setup {-}
 
 A basic understanding of R is assumed. This workshop requires several packages, which can be installed from CRAN:
 
@@ -42,3 +43,12 @@ Be sure to download the [data](https://github.com/healthyregions/Spatial-Health-
 
 ### Commitment {-}
 This workbook is a 3-4 hour, fast-paced overview of mapping, GIScience, and spatial analysis basics for health professionals. When including extensive live coding, support, and additional practice in-person or at home on your own, it can be extended to a week-long program at minimum. You are encouraged to update with your own data finds after each example.
+
+## Background {-}
+
+The workbook is led by Marynia Kolak, Director of the [Healthy Regions & Policies Lab](http://www.healthyregions.org) (HEROP), currently based at the University of Illinois at Urbana-Champaign, and most recently co-facilitated with Ashlynn Wimer (Harvard T. H. Chan). Workshops have been co-facilitated with Qinyun Lin (University of Gothenburg) and Susan Paykin (University of Chicago). 
+
+This suite of tutorials was originally developed for a workshop at the 2021 R-Medicine Conference, and has sinced been updated for multiple workshops at the Society for Epidemiology Research Annual Meeting, and as a workshop at the Institute of Medicine at the University of Gothenburg (Göteborg). 
+
+Some coding snippets & data examples are from the phenomenal team of the [Opioid Environment Toolkit](https://geodacenter.github.io/opioid-environment-toolkit) (Moksha Menghaney, Qinyun Lin, Angela Li), with inspiration from the historic Center for Spatial Data Science training developed by Luc Anselin and Julia Koschinsky at the University of Chicago. 
+
