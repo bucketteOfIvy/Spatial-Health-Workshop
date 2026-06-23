@@ -22,7 +22,7 @@ In addition to this workbook, you'll need a working instance of R and the data. 
 library(downloadthis)
 
 download_link(
-  link = "https://github.com/healthyregions/Spatial-Health-Workshop/blob/main/data/Data-2025.zip",
+  link = "https://github.com/healthyregions/Spatial-Health-Workshop/blob/main/data/Data-2026.zip",
   button_label = "Download Workshop Data",
   button_type = "primary",
   has_icon = TRUE,
