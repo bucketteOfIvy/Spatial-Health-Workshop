@@ -17,8 +17,8 @@ Let's first reload our spatial data -- this will be the MOUD points, plus the ma
 library(sf)
 library(tmap)
 
-points <- st_read("Data-2026/methadoneMOUD.geojson")
-areas <- st_read("Data-2026/ChiZipMaster.geojson")
+points <- st_read("data/methadoneMOUD.geojson")
+areas <- st_read("data/ChiZipMaster.geojson")
 
 dim(points)
 dim(areas)
