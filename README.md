@@ -9,7 +9,6 @@ SER 2026 Workshop Details
 - [Sign In](https://docs.google.com/forms/d/1ySfswbC7pPDRADftzb_hGJHcEsGlaBMvchfUbt3aTh4/preview)
 - [Slide Deck](https://docs.google.com/presentation/d/1WR3-d4IU-WDSVN4oFgFjxbZADtMAExWUBFmqVuvum84/edit?slide=id.gddd9c4a96c_1_138#slide=id.gddd9c4a96c_1_138)
 
-
 Sweden 2025 Workshop Details
 - [Slide Deck](https://docs.google.com/presentation/d/1FDbxNdHZ4D75wRWKchArLYSGatzgEsDDJr2S2EzCfHs/edit?usp=sharing)
 

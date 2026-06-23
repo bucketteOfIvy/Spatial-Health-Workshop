@@ -266,4 +266,5 @@ The data folder has a dataset entitled `sweden_income_2022.csv`. Bring it into t
 
 For choropleth mapping in R:
 
+- https://tmap.geocompx.org/charts 
 - https://spatialanalysis.github.io/lab_tutorials/4_R_Mapping.html
