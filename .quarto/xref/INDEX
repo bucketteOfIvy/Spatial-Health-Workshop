@@ -13,5 +13,11 @@
   },
   "choropleth.qmd": {
     "choropleth.html": "dd6e0c62"
+  },
+  "points.qmd": {
+    "points.html": "e209dda6"
+  },
+  "access-metrics.qmd": {
+    "access-metrics.html": "7a9a46b6"
   }
 }

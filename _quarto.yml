@@ -9,6 +9,8 @@ book:
     - index.qmd
     - intro.qmd
     - choropleth.qmd
+    - points.qmd
+    - access-metrics.qmd
 
 bibliography: references.bib
 
