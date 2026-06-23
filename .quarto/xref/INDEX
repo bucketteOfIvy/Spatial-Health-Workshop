@@ -1,0 +1,23 @@
+{
+  "intro.qmd": {
+    "intro.html": "fffd527c"
+  },
+  "index.qmd": {
+    "index.html": "df1abd67"
+  },
+  "summary.qmd": {
+    "summary.html": "c1a41b29"
+  },
+  "references.qmd": {
+    "references.html": "21d7c438"
+  },
+  "choropleth.qmd": {
+    "choropleth.html": "dd6e0c62"
+  },
+  "points.qmd": {
+    "points.html": "e209dda6"
+  },
+  "access-metrics.qmd": {
+    "access-metrics.html": "7a9a46b6"
+  }
+}

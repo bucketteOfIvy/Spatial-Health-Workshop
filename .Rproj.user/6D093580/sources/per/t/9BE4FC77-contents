@@ -1,0 +1,29 @@
+project:
+  type: book
+
+book:
+  title: "Spatial-R for Healthy Places"
+  author: "Healthy Regions & Policies Lab"
+  date: "10/16/2025"
+  chapters:
+    - new-index.qmd
+    - orientation.qmd
+      chapters:
+      - new-intro.qmd
+
+bibliography: references.bib
+
+prefer-html: true
+  
+format:
+  html:
+    self-contained: true
+    embed-resources: true
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+
+comments:
+  hypothesis: true

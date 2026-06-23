@@ -1,0 +1,11 @@
+"0","tm_shape(Chi_Zipsf) +"
+"0","  tm_polygons(""CaseRtWk39"","
+"0","              fill.scale=tm_scale_intervals(style=""jenks"","
+"0","                                            n = 5,"
+"0","                                            values=""BuPu""),"
+"0","              fill.legend=tm_legend(title=""COVID Case Rate""),"
+"0","              fill.chart = tm_chart_histogram()"
+"0","              )"
+"2","Error in cut.default(x1, breaks = breaks, include.lowest = TRUE, right = FALSE) : 
+  'breaks' are not unique
+"

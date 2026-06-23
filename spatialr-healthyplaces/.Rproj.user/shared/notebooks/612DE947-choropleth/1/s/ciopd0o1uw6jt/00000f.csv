@@ -1,0 +1,8 @@
+"0","tm_shape(Chi_Zipsf) +"
+"0","  tm_polygons(""CaseRtWk39"","
+"0","              fill.scale=tm_scale_intervals(style='quantile', "
+"0","                                            values=""BuPu"","
+"0","                                            n=3),"
+"0","              fill.legend=tm_legend(title=""COVID Case Rate""),"
+"0","              fill.chart = tm_chart_histogram()"
+"0","              )"
