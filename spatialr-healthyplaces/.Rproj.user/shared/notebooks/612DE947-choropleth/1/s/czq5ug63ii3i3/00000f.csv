@@ -1,0 +1,4 @@
+"0",""
+"0","COVID <- read.csv(""~/Documents/GitHub/Spatial-Health-Workshop/data/COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv"")"
+"0",""
+"0","head(COVID)"

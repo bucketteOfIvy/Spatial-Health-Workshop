@@ -1,0 +1,3 @@
+"0","COVID.39f <- COVID.39[,c(""ZIP.Code"", ""Case.Rate...Cumulative"")]"
+"0",""
+"0","head(COVID.39f)"

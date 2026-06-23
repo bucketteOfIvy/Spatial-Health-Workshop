@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>choropleth</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="choropleth_files/libs/clipboard/clipboard.min.js"></script>
+<script src="choropleth_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="choropleth_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="choropleth_files/libs/quarto-html/popper.min.js"></script>
+<script src="choropleth_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="choropleth_files/libs/quarto-html/anchor.min.js"></script>
+<link href="choropleth_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="choropleth_files/libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="choropleth_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="choropleth_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="choropleth_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="map-neighborhoods" class="level1">
+<h1>Map Neighborhoods</h1>
+<p>When considering the health of persons, we have to also consider the neighborhood environment. Sometimes this is looking at neighborhood level health outcomes, like premature mortality at the census tract scale, or cumulative COVID rates by zip code. Sometimes we’re interested in neighborhood factors like poverty, access to affordable housing, or distance to nearest health provider, or pollution-emitting facility. These measurements of the “social determinants of health” at the neighborhood scale are increasingly urgent in modern public health thinking, and are thought to drive and/or reinforce racial, social, and spatial inequity</p>
+<p>In this module, we’ll learn about the basics of thematic mapping – known as <em>choropleth mapping</em> – to visualize neighborhood level health phenomena. This will allow you to begin the process of exploratory spatial data analysis and hypothesis generation &amp; refinement.</p>
+<section id="clean-attribute-data" class="level2">
+<h2 class="anchored" data-anchor-id="clean-attribute-data">Clean Attribute Data</h2>
+<p>Let’s consider COVID-19 cases by zip code in Chicago. We’ll upload and inspect a summary of cases from the <em>Chicago Data Portal</em> first:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>COVID <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"~/Documents/GitHub/Spatial-Health-Workshop/data/COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(COVID)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ZIP.Code Week.Number Week.Start   Week.End Cases...Weekly Cases...Cumulative
+1    60603          39 09/20/2020 09/26/2020              0                 13
+2    60604          39 09/20/2020 09/26/2020              0                 31
+3    60611          16 04/12/2020 04/18/2020              8                 72
+4    60611          15 04/05/2020 04/11/2020              7                 64
+5    60615          11 03/08/2020 03/14/2020             NA                 NA
+6    60603          10 03/01/2020 03/07/2020             NA                 NA
+  Case.Rate...Weekly Case.Rate...Cumulative Tests...Weekly Tests...Cumulative
+1                  0                 1107.3             25                327
+2                  0                 3964.2             12                339
+3                 25                  222.0            101                450
+4                 22                  197.4             59                349
+5                 NA                     NA              6                  9
+6                 NA                     NA              0                  0
+  Test.Rate...Weekly Test.Rate...Cumulative Percent.Tested.Positive...Weekly
+1               2130                27853.5                              0.0
+2               1534                43350.4                              0.0
+3                312                 1387.8                              0.1
+4                182                 1076.3                              0.1
+5                 14                   21.7                               NA
+6                  0                    0.0                               NA
+  Percent.Tested.Positive...Cumulative Deaths...Weekly Deaths...Cumulative
+1                                  0.0               0                   0
+2                                  0.1               0                   0
+3                                  0.2               0                   0
+4                                  0.2               0                   0
+5                                   NA               0                   0
+6                                   NA               0                   0
+  Death.Rate...Weekly Death.Rate...Cumulative Population   Row.ID
+1                   0                       0       1174 60603-39
+2                   0                       0        782 60604-39
+3                   0                       0      32426 60611-16
+4                   0                       0      32426 60611-15
+5                   0                       0      41563 60615-11
+6                   0                       0       1174 60603-10
+             ZIP.Code.Location
+1 POINT (-87.625473 41.880112)
+2 POINT (-87.629029 41.878153)
+3 POINT (-87.620291 41.894734)
+4 POINT (-87.620291 41.894734)
+5 POINT (-87.602725 41.801993)
+6 POINT (-87.625473 41.880112)</code></pre>
+</div>
+</div>
+<p>Each row corresponds to a zip code at a different week. This data thus exists as a “long” format, which doesn’t work for spatial analysis. We need to convert to “wide” format, or at the very least, ensure that each zip code corresponds to one row.</p>
+<p>To simplify, let’s identify the last week of the dataset, and then subset the data frame to only show that week. We will be interested in the cumulative case rate. Following is one way of doing this – can you think of another way? Try out different approaches of reshaping data to test your R and “tidy” skills.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## How many weeks are in our dataset?</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(<span class="fu">as.numeric</span>(COVID<span class="sc">$</span>Week.Number))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 10 40</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Subset &amp; inspect to week 39.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>COVID<span class="fl">.39</span> <span class="ot">&lt;-</span> <span class="fu">subset</span>(COVID, COVID<span class="sc">$</span>Week.Number <span class="sc">==</span> <span class="st">"39"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(COVID<span class="fl">.39</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ZIP.Code Week.Number Week.Start   Week.End Cases...Weekly Cases...Cumulative
+1     60603          39 09/20/2020 09/26/2020              0                 13
+2     60604          39 09/20/2020 09/26/2020              0                 31
+36    60601          39 09/20/2020 09/26/2020              8                213
+37    60602          39 09/20/2020 09/26/2020              0                 21
+41    60605          39 09/20/2020 09/26/2020             12                391
+66    60610          39 09/20/2020 09/26/2020             35                666
+   Case.Rate...Weekly Case.Rate...Cumulative Tests...Weekly Tests...Cumulative
+1                   0                 1107.3             25                327
+2                   0                 3964.2             12                339
+36                 54                 1451.4            202               4304
+37                  0                 1688.1             27                460
+41                 44                 1420.8            291               7160
+66                 90                 1706.9            500              10680
+   Test.Rate...Weekly Test.Rate...Cumulative Percent.Tested.Positive...Weekly
+1                2130                27853.5                              0.0
+2                1534                43350.4                              0.0
+36               1376                29328.8                              0.0
+37               2170                36977.5                              0.0
+41               1058                26018.4                              0.0
+66               1281                27371.3                              0.1
+   Percent.Tested.Positive...Cumulative Deaths...Weekly Deaths...Cumulative
+1                                   0.0               0                   0
+2                                   0.1               0                   0
+36                                  0.0               1                   6
+37                                  0.0               0                   0
+41                                  0.1               1                   3
+66                                  0.1               0                  10
+   Death.Rate...Weekly Death.Rate...Cumulative Population   Row.ID
+1                  0.0                     0.0       1174 60603-39
+2                  0.0                     0.0        782 60604-39
+36                 6.8                    40.9      14675 60601-39
+37                 0.0                     0.0       1244 60602-39
+41                 3.6                    10.9      27519 60605-39
+66                 0.0                    25.6      39019 60610-39
+              ZIP.Code.Location
+1  POINT (-87.625473 41.880112)
+2  POINT (-87.629029 41.878153)
+36 POINT (-87.622844 41.886262)
+37 POINT (-87.628309 41.883136)
+41 POINT (-87.623449 41.867824)
+66   POINT (-87.63581 41.90455)</code></pre>
+</div>
+</div>
+<p>To clean our data a bit, we’ll just keep the zip code name, and cumulative case rate for the week of September 20th, 2020.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>COVID<span class="fl">.39</span>f <span class="ot">&lt;-</span> COVID<span class="fl">.39</span>[,<span class="fu">c</span>(<span class="st">"ZIP.Code"</span>, <span class="st">"Case.Rate...Cumulative"</span>)]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(COVID<span class="fl">.39</span>f)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ZIP.Code Case.Rate...Cumulative
+1     60603                 1107.3
+2     60604                 3964.2
+36    60601                 1451.4
+37    60602                 1688.1
+41    60605                 1420.8
+66    60610                 1706.9</code></pre>
+</div>
+</div>
+<p>Let’s rename the column headings to make them a bit more friendly.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.1     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>COVID<span class="fl">.39</span>f <span class="ot">&lt;-</span> COVID<span class="fl">.39</span>f <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ZIP.Code =</span> ZIP.Code, </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">CaseRtWk39 =</span> Case.Rate...Cumulative)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(COVID<span class="fl">.39</span>f)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ZIP.Code CaseRtWk39
+1     60603     1107.3
+2     60604     3964.2
+36    60601     1451.4
+37    60602     1688.1
+41    60605     1420.8
+66    60610     1706.9</code></pre>
+</div>
+</div>
+</section>
+<section id="merge-spatial-data" class="level2">
+<h2 class="anchored" data-anchor-id="merge-spatial-data">Merge Spatial Data</h2>
+<p>Next, let’s merge this data to our zip code master spatial file. Reload if necessary:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Linking to GEOS 3.13.0, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>Chi_Zips <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"~/Documents/GitHub/Spatial-Health-Workshop/data/chicago_zips1.shp"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `chicago_zips1' from data source 
+  `/Users/ppgroup/Documents/GitHub/Spatial-Health-Workshop/data/chicago_zips1.shp' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 59 features and 4 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+Geodetic CRS:  +proj=longlat +ellps=WGS84 +no_defs</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Chi_Zips)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 6 features and 4 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -87.80649 ymin: 41.88747 xmax: -87.59852 ymax: 41.93228
+Geodetic CRS:  +proj=longlat +ellps=WGS84 +no_defs
+  objectid shape_area shape_len   zip                       geometry
+1       33  106052287  42720.04 60647 MULTIPOLYGON (((-87.67762 4...
+2       34  127476051  48103.78 60639 MULTIPOLYGON (((-87.72683 4...
+3       35   45069038  27288.61 60707 MULTIPOLYGON (((-87.785 41....
+4       36   70853834  42527.99 60622 MULTIPOLYGON (((-87.66707 4...
+5       37   99039621  47970.14 60651 MULTIPOLYGON (((-87.70656 4...
+6       38   23506056  34689.35 60611 MULTIPOLYGON (((-87.61401 4...</code></pre>
+</div>
+</div>
+<p>Next, merge on zip code ID. The key in the Chi_Zips object is <code>zip</code>, whereas the key for the COVID data is <code>ZIP.code</code>. Always merge non-spatial <em>to</em> spatial data, not the other way around. Think of the spatial file as your master file that you will continue to add on to…</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>Chi_Zipsf <span class="ot">&lt;-</span> <span class="fu">merge</span>(Chi_Zips, COVID<span class="fl">.39</span>f, <span class="at">by.x =</span> <span class="st">"zip"</span>, <span class="at">by.y =</span> <span class="st">"ZIP.Code"</span>, <span class="at">all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Chi_Zipsf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 6 features and 5 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: -87.63999 ymin: 41.85317 xmax: -87.60246 ymax: 41.88913
+Geodetic CRS:  +proj=longlat +ellps=WGS84 +no_defs
+    zip objectid shape_area shape_len CaseRtWk39                       geometry
+1 60601       27    9166246  19804.58     1451.4 MULTIPOLYGON (((-87.62271 4...
+2 60602       26    4847125  14448.17     1688.1 MULTIPOLYGON (((-87.60997 4...
+3 60603       19    4560229  13672.68     1107.3 MULTIPOLYGON (((-87.61633 4...
+4 60604       48    4294902  12245.81     3964.2 MULTIPOLYGON (((-87.63376 4...
+5 60605       20   36301276  37973.35     1420.8 MULTIPOLYGON (((-87.62064 4...
+6 60606       31    6766411  12040.44     2289.6 MULTIPOLYGON (((-87.63397 4...</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(Chi_Zips)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 59  5</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(COVID<span class="fl">.39</span>f)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 60  2</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(Chi_Zipsf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 60  6</code></pre>
+</div>
+</div>
+</section>
+<section id="quantile-maps" class="level2">
+<h2 class="anchored" data-anchor-id="quantile-maps">Quantile Maps</h2>
+<p>Starting with a “classic epi” approach, let’s look at case rates as quantiles. We use the <code>tmap</code> library, and update the choropleth data classification using the <code>style</code> parameter. We use the Blue-Purple palette, or <code>BuPu</code>, from Colorbrewer.</p>
+<p><strong>Colorbrewer Tip:</strong> To display all Colorbrewer palette options, load the <code>RColorBrewer</code> library and run <code>display.brewer.all()</code> – or just Google “R Colorbrewer palettes.”</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(Chi_Zipsf) <span class="sc">+</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"CaseRtWk39"</span>, </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.scale  =</span> <span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">"quantile"</span>,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">values=</span><span class="st">"BuPu"</span>),</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.legend =</span> <span class="fu">tm_legend</span>(<span class="at">title=</span><span class="st">"COVID Case Rate"</span>),</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>()</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>              )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="choropleth_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Let’s try tertiles:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(Chi_Zipsf) <span class="sc">+</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"CaseRtWk39"</span>,</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.scale=</span><span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">'quantile'</span>, </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>                                            <span class="at">values=</span><span class="st">"BuPu"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                                            <span class="at">n=</span><span class="dv">3</span>),</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.legend=</span><span class="fu">tm_legend</span>(<span class="at">title=</span><span class="st">"COVID Case Rate"</span>),</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>()</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>              )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="choropleth_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="standard-deviation-maps" class="level2">
+<h2 class="anchored" data-anchor-id="standard-deviation-maps">Standard Deviation Maps</h2>
+<p>While quantiles are a nice start, let’s classify using a standard deviation map. Standard deviation is a statistical technique type of map based on how much the data differs from the mean.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(Chi_Zipsf) <span class="sc">+</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"CaseRtWk39"</span>, </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.scale=</span><span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">'sd'</span>,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>                                            <span class="at">values=</span><span class="st">"BuPu"</span>),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.legend=</span><span class="fu">tm_legend</span>(<span class="st">"COVID Case Rate"</span>),</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>()</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>              )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="choropleth_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="jenks-maps" class="level2">
+<h2 class="anchored" data-anchor-id="jenks-maps">Jenks Maps</h2>
+<p>Another approach of data classification is natural breaks, or jenks. This approach looks for “natural breaks” in the data using a univariate clustering algorithm.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(Chi_Zipsf) <span class="sc">+</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"CaseRtWk39"</span>,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.scale=</span><span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">"jenks"</span>,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>                                            <span class="at">values=</span><span class="st">"BuPu"</span>),</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.legend=</span><span class="fu">tm_legend</span>(<span class="at">title=</span><span class="st">"COVID Case Rate"</span>),</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>()</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>              )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="choropleth_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The first bin doesn’t seem very intuitive. Let’s try 4 bins instead of 5 by changing the <code>n</code> parameter. In this version, we’ll also had a histogram and scale bar, and move the legend outside the frame to make it easier to view.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(Chi_Zipsf) <span class="sc">+</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"CaseRtWk39"</span>,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.scale=</span><span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">"jenks"</span>,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                                            <span class="at">values=</span><span class="st">"BuPu"</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                                            <span class="at">n=</span><span class="dv">4</span>),</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.legend=</span><span class="fu">tm_legend</span>(<span class="at">title=</span><span class="st">"COVID Case Rate"</span>),</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>()</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>              ) <span class="sc">+</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scalebar</span>(<span class="at">position=</span><span class="st">"left"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="choropleth_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="integrate-more-data" class="level2">
+<h2 class="anchored" data-anchor-id="integrate-more-data">Integrate More Data</h2>
+<p>To explore potential disparities in COVID health outcomes, let’s bring in pre-cleaned demographic, racial, and ethnic data from the <a href="https://geodacenter.github.io/opioid-policy-scan/">Opioid Environment Policy Scan database</a>. This data is orginally sourced from the American Community Survey 2018 5-year estimate, which you could also pull using the <code>tidycensus</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">#CensusVar &lt;- read.csv("data/DS01_Z.csv")</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co">#head(CensusVar)</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>CensusVar <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"https://github.com/healthyregions/oeps/raw/refs/heads/main/backend/oeps/data/tables/zcta-2018.csv"</span>)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(CensusVar)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 32,989
+Columns: 82
+$ HEROP_ID     &lt;chr&gt; "860US01001", "860US01002", "860US01003", "860US01005", "…
+$ ZCTA5        &lt;dbl&gt; 1001, 1002, 1003, 1005, 1007, 1008, 1009, 1010, 1011, 101…
+$ AreaSqMi     &lt;dbl&gt; 11.50, 55.06, 0.71, 44.26, 52.60, 53.80, 0.81, 34.77, 31.…
+$ TotPop       &lt;int&gt; 17621, 30066, 11238, 4991, 14967, 1197, 249, 3739, 1448, …
+$ Age15_44     &lt;dbl&gt; 5735, 18634, 11192, 1518, 5109, 344, 119, 1042, 474, 182,…
+$ Ovr65P       &lt;dbl&gt; 24.11, 11.87, 0.04, 15.41, 14.76, 23.98, 38.96, 18.91, 18…
+$ TotPopHh     &lt;int&gt; 17077, 24798, 77, 4763, 14961, 1197, 249, 3739, 1437, 560…
+$ NonRelFhhP   &lt;dbl&gt; 4.34, 2.97, 22.22, 0.71, 1.62, 1.35, 0.00, 3.25, 2.50, 5.…
+$ NonRelNfhhP  &lt;dbl&gt; 16.15, 49.07, 45.76, 34.28, 27.19, 14.56, 62.35, 13.06, 2…
+$ DisbP        &lt;dbl&gt; 14.3, 8.6, 2.0, 9.4, 9.5, 10.5, 0.0, 10.8, 18.1, 10.0, 14…
+$ WhiteP       &lt;dbl&gt; 92.48, 75.77, 74.31, 95.15, 94.73, 98.83, 100.00, 95.16, …
+$ BlackP       &lt;dbl&gt; 1.96, 6.24, 5.08, 2.30, 0.57, 0.00, 0.00, 3.61, 0.28, 0.0…
+$ HispP        &lt;dbl&gt; 5.52, 7.34, 5.55, 1.24, 1.39, 1.67, 0.00, 2.62, 0.76, 0.5…
+$ AmIndP       &lt;dbl&gt; 0.03, 0.41, 0.52, 0.00, 0.00, 0.33, 0.00, 0.00, 0.00, 0.0…
+$ AsianP       &lt;dbl&gt; 3.05, 10.95, 16.22, 0.78, 3.31, 0.00, 0.00, 0.45, 0.14, 0…
+$ PacIsP       &lt;dbl&gt; 0.00, 0.11, 0.00, 0.48, 0.00, 0.00, 0.00, 0.00, 0.00, 0.8…
+$ OtherP       &lt;dbl&gt; 2.47, 6.52, 3.87, 1.28, 1.39, 0.84, 0.00, 0.78, 1.24, 0.0…
+$ DsmBlk       &lt;dbl&gt; 0.16, 0.30, 0.18, 0.30, 0.27, 0.19, 0.00, 0.41, 0.16, 0.0…
+$ IntrBlkWht   &lt;dbl&gt; 0.89, 0.69, 0.76, 0.95, 0.92, 0.96, 0.00, 0.92, 0.96, 0.0…
+$ IsoBlk       &lt;dbl&gt; 0.02, 0.08, 0.05, 0.02, 0.01, 0.01, 0.00, 0.03, 0.01, 0.0…
+$ DsmHsp       &lt;dbl&gt; 0.33, 0.22, 0.19, 0.13, 0.15, 0.01, 0.00, 0.19, 0.00, 0.0…
+$ IntrHspWht   &lt;dbl&gt; 0.87, 0.71, 0.74, 0.95, 0.93, 0.96, 0.91, 0.92, 0.96, 0.9…
+$ IsoHsp       &lt;dbl&gt; 0.08, 0.07, 0.06, 0.02, 0.02, 0.02, 0.06, 0.04, 0.02, 0.0…
+$ DsmAs        &lt;dbl&gt; 0.30, 0.26, 0.22, 0.12, 0.07, 0.30, 0.00, 0.37, 0.39, 0.0…
+$ IntrAsWht    &lt;dbl&gt; 0.88, 0.70, 0.74, 0.95, 0.93, 0.96, 0.91, 0.92, 0.96, 0.0…
+$ IsoAs        &lt;dbl&gt; 0.04, 0.13, 0.14, 0.01, 0.03, 0.00, 0.03, 0.02, 0.01, 0.0…
+$ TotVetPop    &lt;dbl&gt; 1350, 659, 0, 333, 1023, 104, 12, 232, 157, 34, 1263, 275…
+$ VetP         &lt;dbl&gt; 9.44, 2.50, 0.00, 8.40, 8.80, 10.13, 4.82, 7.77, 13.25, 7…
+$ AlcTot       &lt;dbl&gt; 6, 6, NA, 1, 4, NA, NA, NA, NA, NA, 5, 8, 1, NA, 6, 4, NA…
+$ AlcDens      &lt;dbl&gt; 0.52, 0.11, NA, 0.02, 0.08, NA, NA, NA, NA, NA, 0.89, 0.6…
+$ AlcPerCap    &lt;dbl&gt; 0, 0, NA, 0, 0, NA, NA, NA, NA, NA, 0, 0, 0, NA, 0, 0, NA…
+$ TotUnits     &lt;int&gt; 7769, 10947, 60, 2074, 5925, 634, 206, 1710, 696, 333, 10…
+$ VacantP      &lt;dbl&gt; 3.71, 9.77, 40.00, 13.31, 7.59, 19.56, 49.03, 16.32, 18.2…
+$ MobileP      &lt;dbl&gt; 0.91, 0.14, 0.00, 1.30, 5.96, 0.47, 0.00, 8.95, 1.01, 0.0…
+$ LngTermP     &lt;dbl&gt; 32.56, 24.29, 23.38, 44.15, 37.04, 40.18, 68.27, 43.81, 4…
+$ RentalP      &lt;dbl&gt; 26.69, 53.65, 88.89, 16.24, 18.01, 4.90, 0.00, 11.53, 20.…
+$ UnitDens     &lt;dbl&gt; 675.31, 198.80, 84.35, 46.86, 112.64, 11.78, 253.54, 49.1…
+$ Ndvi         &lt;dbl&gt; 0.21, 0.27, 0.23, 0.31, 0.30, 0.34, 0.26, 0.31, 0.35, 0.3…
+$ PovP         &lt;dbl&gt; 9.0, 28.7, 79.3, 6.9, 5.3, 5.0, 24.9, 2.9, 10.1, 9.3, 20.…
+$ UnempP       &lt;dbl&gt; 3.4, 5.9, 18.4, 5.9, 4.0, 4.5, 12.4, 8.4, 4.4, 7.4, 7.3, …
+$ MedInc       &lt;dbl&gt; 33505, 16070, 4200, 35901, 42413, 39563, 39972, 36754, 30…
+$ PciE         &lt;dbl&gt; 35135, 29499, 4590, 35190, 42021, 36847, 32651, 38489, 30…
+$ GiniCoeff    &lt;dbl&gt; 0.42, 0.52, 0.65, 0.41, 0.41, 0.34, 0.21, 0.43, 0.42, 0.4…
+$ TotWrkE      &lt;dbl&gt; 8867, 15647, 4101, 2650, 8642, 655, 155, 1890, 762, 299, …
+$ HghRskP      &lt;dbl&gt; 16.17, 5.76, 4.24, 20.08, 15.46, 26.56, 21.29, 22.49, 24.…
+$ HltCrP       &lt;dbl&gt; 14.50, 11.18, 5.61, 12.98, 13.21, 9.31, 7.10, 17.78, 12.6…
+$ RetailP      &lt;dbl&gt; 13.54, 11.45, 12.44, 8.60, 10.33, 11.30, 20.65, 9.84, 19.…
+$ EssnWrkE     &lt;dbl&gt; 3906, 5110, 1675, 1242, 3443, 331, 56, 843, 421, 159, 567…
+$ EssnWrkP     &lt;dbl&gt; 44.05, 32.66, 40.84, 46.87, 39.84, 50.53, 36.13, 44.60, 5…
+$ SviTh1       &lt;dbl&gt; 0.37, 0.41, 0.50, 0.24, 0.21, 0.15, 0.21, 0.26, 0.15, 0.0…
+$ SviTh2       &lt;dbl&gt; 0.32, 0.46, 0.93, 0.28, 0.18, 0.29, 0.17, 0.31, 0.28, 0.4…
+$ SviTh3       &lt;dbl&gt; 0.50, 0.21, 0.01, 0.23, 0.22, 0.21, 0.75, 0.46, 0.22, 0.1…
+$ SviTh4       &lt;dbl&gt; 0.29, 0.45, 0.34, 0.05, 0.29, 0.14, 0.08, 0.17, 0.14, 0.0…
+$ SviSmryRnk   &lt;dbl&gt; 0.51, 0.57, 0.75, 0.60, 0.39, 0.24, 0.28, 0.35, 0.24, 0.0…
+$ MaleP        &lt;dbl&gt; 47.06, 48.55, 51.33, 49.45, 50.18, 52.05, 53.82, 49.02, 4…
+$ FemP         &lt;dbl&gt; 52.94, 51.45, 48.67, 50.55, 49.82, 47.95, 46.18, 50.98, 5…
+$ Ovr16P       &lt;dbl&gt; 82.86, 89.19, 100.00, 83.59, 81.57, 87.05, 100.00, 82.51,…
+$ Ovr18P       &lt;dbl&gt; 81.30, 87.64, 99.41, 79.40, 77.64, 85.80, 100.00, 79.81, …
+$ Ovr21P       &lt;dbl&gt; 71.51, 62.36, 25.16, 69.16, 64.07, 74.02, 95.58, 67.69, 7…
+$ SRatio       &lt;dbl&gt; 88.88, 94.36, 105.49, 97.82, 100.71, 108.54, 116.52, 96.1…
+$ SRatio18     &lt;dbl&gt; 78.41, 95.03, 106.01, 98.15, 88.25, 105.74, 116.52, 94.29…
+$ SRatio65     &lt;dbl&gt; 63.42, 84.11, 0.00, 130.24, 65.97, 100.70, 203.12, 85.08,…
+$ WhiteE       &lt;dbl&gt; 16296, 22780, 8351, 4749, 14178, 1183, 249, 3558, 1424, 5…
+$ AsianE       &lt;dbl&gt; 538, 3293, 1823, 39, 496, 0, 0, 17, 2, 0, 528, 610, 50, 5…
+$ PacIsE       &lt;dbl&gt; 0, 34, 0, 24, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0…
+$ HisE         &lt;dbl&gt; 973, 2206, 624, 62, 208, 20, 0, 98, 11, 3, 6376, 4924, 18…
+$ AmIndE       &lt;dbl&gt; 6, 124, 58, 0, 0, 4, 0, 0, 0, 0, 8, 60, 0, 0, 3, 30, 0, 1…
+$ TwoRaceE     &lt;dbl&gt; 316, 1498, 337, 62, 170, 10, 0, 29, 11, 0, 367, 731, 176,…
+$ OtherE       &lt;dbl&gt; 119, 462, 98, 2, 38, 0, 0, 0, 7, 0, 1765, 865, 0, 0, 100,…
+$ SomeCollegeP &lt;dbl&gt; 17.54, 8.18, 41.53, 11.63, 12.20, 14.54, 37.88, 14.76, 14…
+$ EduNoHsP     &lt;dbl&gt; 8.52, 4.84, 22.88, 3.87, 5.27, 10.12, 5.56, 5.83, 11.29, …
+$ EduHsP       &lt;dbl&gt; 28.25, 13.42, 11.86, 36.85, 22.32, 31.82, 6.06, 26.50, 39…
+$ BachelorsP   &lt;dbl&gt; 19.26, 25.55, 11.02, 17.23, 24.43, 19.81, 33.84, 19.27, 1…
+$ GradSclP     &lt;dbl&gt; 13.24, 41.46, 4.24, 15.13, 23.38, 12.33, 0.00, 16.67, 6.8…
+$ ChildrenP    &lt;dbl&gt; 0.19, 0.12, 0.01, 0.21, 0.22, 0.14, 0.00, 0.20, 0.18, 0.1…
+$ Ovr16        &lt;dbl&gt; 14601, 26816, 11238, 4172, 12209, 1042, 249, 3085, 1202, …
+$ Ovr18        &lt;int&gt; 14325, 26349, 11172, 3963, 11620, 1027, 249, 2984, 1185, …
+$ Ovr21        &lt;int&gt; 12601, 18748, 2827, 3452, 9590, 886, 238, 2531, 1037, 442…
+$ Ovr65        &lt;int&gt; 4249, 3568, 4, 769, 2209, 287, 97, 707, 262, 135, 3407, 5…
+$ Age15_44P    &lt;dbl&gt; 32.55, 61.98, 99.59, 30.41, 34.14, 28.74, 47.79, 27.87, 3…
+$ BlackE       &lt;int&gt; 346, 1875, 571, 115, 85, 0, 0, 135, 4, 0, 1166, 1072, 464…
+$ EngProf      &lt;dbl&gt; 95.65, 95.01, 96.55, 99.92, 96.64, 99.13, 95.58, 99.27, 9…</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>CensusVar2 <span class="ot">&lt;-</span> CensusVar <span class="sc">%&gt;%</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">select</span>(HEROP_ID,Ovr65P,EduNoHsP,PovP,Ovr65P,BlackP,WhiteP,HispP)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(CensusVar2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 32,989
+Columns: 7
+$ HEROP_ID &lt;chr&gt; "860US01001", "860US01002", "860US01003", "860US01005", "860U…
+$ Ovr65P   &lt;dbl&gt; 24.11, 11.87, 0.04, 15.41, 14.76, 23.98, 38.96, 18.91, 18.09,…
+$ EduNoHsP &lt;dbl&gt; 8.52, 4.84, 22.88, 3.87, 5.27, 10.12, 5.56, 5.83, 11.29, 9.28…
+$ PovP     &lt;dbl&gt; 9.0, 28.7, 79.3, 6.9, 5.3, 5.0, 24.9, 2.9, 10.1, 9.3, 20.5, 1…
+$ BlackP   &lt;dbl&gt; 1.96, 6.24, 5.08, 2.30, 0.57, 0.00, 0.00, 3.61, 0.28, 0.00, 5…
+$ WhiteP   &lt;dbl&gt; 92.48, 75.77, 74.31, 95.15, 94.73, 98.83, 100.00, 95.16, 98.3…
+$ HispP    &lt;dbl&gt; 5.52, 7.34, 5.55, 1.24, 1.39, 1.67, 0.00, 2.62, 0.76, 0.54, 2…</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>CensusVar2<span class="sc">$</span>Zcta <span class="ot">&lt;-</span> <span class="fu">substr</span>(CensusVar2<span class="sc">$</span>HEROP_ID, <span class="dv">6</span>,<span class="dv">12</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(CensusVar2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 32,989
+Columns: 8
+$ HEROP_ID &lt;chr&gt; "860US01001", "860US01002", "860US01003", "860US01005", "860U…
+$ Ovr65P   &lt;dbl&gt; 24.11, 11.87, 0.04, 15.41, 14.76, 23.98, 38.96, 18.91, 18.09,…
+$ EduNoHsP &lt;dbl&gt; 8.52, 4.84, 22.88, 3.87, 5.27, 10.12, 5.56, 5.83, 11.29, 9.28…
+$ PovP     &lt;dbl&gt; 9.0, 28.7, 79.3, 6.9, 5.3, 5.0, 24.9, 2.9, 10.1, 9.3, 20.5, 1…
+$ BlackP   &lt;dbl&gt; 1.96, 6.24, 5.08, 2.30, 0.57, 0.00, 0.00, 3.61, 0.28, 0.00, 5…
+$ WhiteP   &lt;dbl&gt; 92.48, 75.77, 74.31, 95.15, 94.73, 98.83, 100.00, 95.16, 98.3…
+$ HispP    &lt;dbl&gt; 5.52, 7.34, 5.55, 1.24, 1.39, 1.67, 0.00, 2.62, 0.76, 0.54, 2…
+$ Zcta     &lt;chr&gt; "01001", "01002", "01003", "01005", "01007", "01008", "01009"…</code></pre>
+</div>
+</div>
+<p>Merge to our master Zip Code dataset. There are many more zip codes than we have in our Chicago dataset, so we only keep the zip codes in the main dataset, Chi_Zipf. In this case, let’s test the merge to see if we retain 61 observations.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>Chi_Zipsf.new <span class="ot">&lt;-</span> <span class="fu">merge</span>(Chi_Zipsf, CensusVar2, <span class="at">by.x =</span> <span class="st">"zip"</span>, <span class="at">by.y =</span> <span class="st">"Zcta"</span>, <span class="at">all.x=</span><span class="cn">TRUE</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(Chi_Zipsf.new)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 60 13</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(Chi_Zipsf.new)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 60
+Columns: 13
+$ zip        &lt;chr&gt; "60601", "60602", "60603", "60604", "60605", "60606", "6060…
+$ objectid   &lt;dbl&gt; 27, 26, 19, 48, 20, 31, 29, 28, 22, 54, 38, 16, 53, 32, 8, …
+$ shape_area &lt;dbl&gt; 9166246, 4847125, 4560229, 4294902, 36301276, 6766411, 6466…
+$ shape_len  &lt;dbl&gt; 19804.58, 14448.17, 13672.68, 12245.81, 37973.35, 12040.44,…
+$ CaseRtWk39 &lt;dbl&gt; 1451.4, 1688.1, 1107.3, 3964.2, 1420.8, 2289.6, 2504.1, 340…
+$ HEROP_ID   &lt;chr&gt; "860US60601", "860US60602", "860US60603", "860US60604", "86…
+$ Ovr65P     &lt;dbl&gt; 14.14, 0.40, 9.54, 11.89, 9.34, 13.90, 5.42, 9.91, 11.35, 1…
+$ EduNoHsP   &lt;dbl&gt; 0.00, 0.00, 0.00, 0.00, 2.39, 0.73, 3.94, 29.85, 25.76, 3.8…
+$ PovP       &lt;dbl&gt; 8.4, 2.4, 14.2, 22.3, 9.6, 7.6, 21.7, 22.5, 27.9, 11.7, 10.…
+$ BlackP     &lt;dbl&gt; 5.57, 3.78, 3.24, 5.63, 17.18, 2.35, 14.51, 17.65, 24.71, 1…
+$ WhiteP     &lt;dbl&gt; 74.17, 68.17, 63.46, 63.43, 61.20, 72.75, 58.17, 44.61, 44.…
+$ HispP      &lt;dbl&gt; 8.68, 6.51, 9.80, 4.35, 5.84, 6.29, 8.30, 50.69, 53.44, 6.6…
+$ geometry   &lt;MULTIPOLYGON [°]&gt; MULTIPOLYGON (((-87.62271 4..., MULTIPOLYGON (…</code></pre>
+</div>
+</div>
+</section>
+<section id="thematic-map-panel" class="level2">
+<h2 class="anchored" data-anchor-id="thematic-map-panel">Thematic Map Panel</h2>
+<p>To facilitate data discovery, we likely want to explore multiple maps at once. Here we’ll generate maps for multiple variables, and plot them as a map panel.</p>
+<p>Can you think of more efficient ways to run this code? There are also other <code>tmap</code> tricks to optimize this further, so enjoy your journey!</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(Chi_Zipsf.new) <span class="sc">+</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"Ovr65P"</span>,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.scale=</span><span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">'jenks'</span>,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">values=</span><span class="st">'BuPu'</span>,</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">n=</span><span class="dv">4</span>),</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>()</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>          )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="choropleth_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>COVID <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(Chi_Zipsf.new) <span class="sc">+</span> </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"CaseRtWk39"</span>,</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.scale  =</span> <span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">'jenks'</span>, <span class="at">values=</span><span class="st">'Reds'</span>, <span class="at">n=</span><span class="dv">4</span>),</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.legend =</span> <span class="fu">tm_legend</span>(<span class="st">"COVID Rt"</span>),</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>())</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>Senior <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(Chi_Zipsf.new) <span class="sc">+</span> </span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"Ovr65P"</span>, <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">"jenks"</span>, </span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>                                                   <span class="at">values=</span><span class="st">"BuPu"</span>, <span class="at">n=</span><span class="dv">4</span>),</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>()) </span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>EduNoHsP <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(Chi_Zipsf.new) <span class="sc">+</span> </span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"EduNoHsP"</span>, <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">'jenks'</span>, </span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>                                                   <span class="at">values=</span><span class="st">'BuPu'</span>, <span class="at">n=</span><span class="dv">4</span>),</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>())</span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>BlkP <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(Chi_Zipsf.new) <span class="sc">+</span> </span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"BlackP"</span>, <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">'jenks'</span>,</span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>                                                    <span class="at">values=</span><span class="st">'BuPu'</span>, <span class="at">n=</span><span class="dv">4</span>),</span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>()) </span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>Latnx <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(Chi_Zipsf.new) <span class="sc">+</span> </span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"HispP"</span>, <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">'jenks'</span>, </span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>                                                   <span class="at">values=</span><span class="st">'BuPu'</span>, <span class="at">n=</span><span class="dv">4</span>),</span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>())</span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a>WhiP <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(Chi_Zipsf.new) <span class="sc">+</span> </span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="st">"WhiteP"</span>, <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(<span class="at">style=</span><span class="st">'jenks'</span>, </span>
+<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a>                                                    <span class="at">values=</span><span class="st">'BuPu'</span>, <span class="at">n=</span><span class="dv">4</span>),</span>
+<span id="cb43-30"><a href="#cb43-30" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill.chart =</span> <span class="fu">tm_chart_histogram</span>()) </span>
+<span id="cb43-31"><a href="#cb43-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-32"><a href="#cb43-32" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(COVID, Senior, EduNoHsP, BlkP, Latnx, WhiP)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="choropleth_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From the results, we see that cumulative COVID outcomes for one week in September 2020 seemed to have some geographic correlation with the Latinx/Hispanic community in Chicago. At the same time, low high school diploma rates are also concentrated in these areas, and there is some intersection with other variables considered. What are additional variables you could bring in to refine your approach? Perhaps percentage of essential workers; a different age group; internet access? What about linking in health outcomes like Asthma, Hypertension, and more at a similar scale?</p>
+<p>In modern spatial epidemiology, associations must never be taken at face value. For example, we know that it is not “race” but “racism” that drives multiple health disparities – simply looking at a specific racial/ethnic group is not enough. Thus exploring multiple variables and nurturing a curiosity to understand these complex intersections will support knowledge discovery.</p>
+</section>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">Data</h2>
+<p>We’re done! Well… not so fast. Let’s save the data so we don’t have to run the codebook again to access the data. Here, we’ll save as a <code>geojson</code> file. This spatial format is more forgiving with long column names, which is a long-standing challenge with shapefiles. But sometimes it can be written oddly, so double-check the dimensions when reading in later.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Chi_Zipsf_recast &lt;- st_cast(Chi_Zipsf, "MULTIPOLYGON")</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="co">#st_write(Chi_Zipsf_recast, "data/ChiZipMaster.geojson", driver = "GeoJSON")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We could also just the data as a <code>CSV</code> file which may be easier for future linking. For this, we use the <code>st_drop_geometry()</code> function to remove the geometry data, so we’re just left with the attributes.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#write.csv(st_drop_geometry(Chi_Zipsf), "data/ChiZipMaster.csv")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="practice-in-sweden" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="practice-in-sweden">Practice in Sweden</h2>
+<p>The data folder has a dataset entitled <code>sweden_income_2022.csv</code>. Bring it into the workspace. Then:</p>
+<ol type="1">
+<li>Bring it into the workspace, and inspect. Prepare for a merge.</li>
+<li>Merge the income-level data to the DeSo dataset you worked with in the prior practice. Inspect.</li>
+<li>Generate a series of choropleth maps of <strong>median income</strong> using different styles. Select the best, and explain why you identified it as such.</li>
+</ol>
+</section>
+<section id="more-resources" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="more-resources">More Resources</h2>
+<p>For choropleth mapping in R:</p>
+<ul>
+<li>https://spatialanalysis.github.io/lab_tutorials/4_R_Mapping.html</li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

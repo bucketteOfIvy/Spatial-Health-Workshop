@@ -1,0 +1,30 @@
+project:
+  type: book
+
+book:
+  title: "Spatial-R for Healthy Places"
+  author: "Healthy Regions & Policies Lab"
+  date: "6/23/2026"
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - choropleth.qmd
+
+bibliography: references.bib
+
+prefer-html: true
+
+format:
+  html:
+    self-contained: true
+    embed-resources: true
+    theme:
+    - cosmo
+    - brand
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+
+comments:
+  hypothesis: true

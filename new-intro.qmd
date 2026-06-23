@@ -130,7 +130,7 @@ tracts.4326 <- tm_shape(Chi_tracts) +
 
 tracts.54019 <- tm_shape(Chi_tracts.54019) + 
   tm_fill(col = "gray90") + 
-  tm_title("EPSG 54019")
+  tm_title("EPSG 54019") +
   tm_layout(frame = FALSE)
 
 tmap_arrange(tracts.4326, tracts.54019)
@@ -166,7 +166,16 @@ tm_shape(Chi_tracts) +
     fill_alpha = 0.5, #fill transparency
     col = "gray10", #border color
     lwd = 0.25 #line width
-    )
+    ) 
+```
+
+We can start to introduce basemaps to explore more options for spatial visualization. Here, we'll use the Carto Voyager basemap, as found at [this useful preview website](https://leaflet-extras.github.io/leaflet-providers/preview). To keep things simple, we'll just visualize the borders using the `tm_borders` function.
+
+```{r warning=FALSE}
+tm_basemap("CartoDB.Voyager") + #add basemap
+  
+  tm_shape(Chi_tracts) + tm_borders(lwd=0.40)  #include borders only
+
 ```
 
 We revert back to `plot` mode for now.
