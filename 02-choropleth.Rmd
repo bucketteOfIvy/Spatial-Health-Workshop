@@ -34,6 +34,16 @@ To clean our data a bit, we'll just keep the zip code name, and cumulative case 
 COVID.39f <- COVID.39[,c("ZIP.Code", "Case.Rate...Cumulative")]
 
 head(COVID.39f)
+
+library(tidyverse)
+
+COVID.39f <- COVID.39f %>% 
+  rename(ZIP.Code = ZIP.Code, 
+         CaseRtWk39 = Case.Rate...Cumulative)
+
+head(COVID.39f)
+
+
 ```
 
 ## Merge Spatial Data
@@ -54,6 +64,10 @@ Next, merge on zip code ID. The key in the Chi_Zips object is `zip`, whereas the
 Chi_Zipsf <- merge(Chi_Zips, COVID.39f, by.x = "zip", by.y = "ZIP.Code", all = TRUE)
 
 head(Chi_Zipsf)
+
+dim(Chi_Zips)
+dim(COVID.39f)
+dim(Chi_Zipsf)
 ```
 
 ## Quantile Maps
@@ -69,7 +83,7 @@ library(tmap)
 tmap_mode("plot")
 
 tm_shape(Chi_Zipsf) +
-  tm_polygons("Case.Rate...Cumulative", 
+  tm_polygons("CaseRtWk39", 
               fill.scale  = tm_scale_intervals(style="quantile",
                                                values="BuPu"),
               fill.legend = tm_legend(title="COVID Case Rate")
@@ -81,7 +95,7 @@ Let's try tertiles:
 
 ```{r message=FALSE}
 tm_shape(Chi_Zipsf) +
-  tm_polygons("Case.Rate...Cumulative",
+  tm_polygons("CaseRtWk39",
               fill.scale=tm_scale_intervals(style='quantile', 
                                             values="BuPu",
                                             n=3),
@@ -95,7 +109,7 @@ While quantiles are a nice start, let's classify using a standard deviation map.
 
 ```{r message=FALSE}
 tm_shape(Chi_Zipsf) +
-  tm_polygons("Case.Rate...Cumulative", 
+  tm_polygons("CaseRtWk39", 
               fill.scale=tm_scale_intervals(style='sd',
                                             values="BuPu"),
               fill.legend=tm_legend("COVID Case Rate")
@@ -108,7 +122,7 @@ Another approach of data classification is natural breaks, or jenks. This approa
 
 ```{r message=FALSE}
 tm_shape(Chi_Zipsf) +
-  tm_polygons("Case.Rate...Cumulative",
+  tm_polygons("CaseRtWk39",
               fill.scale=tm_scale_intervals(style="jenks",
                                             values="BuPu"),
               fill.legend=tm_legend(title="COVID Case Rate"))
@@ -118,7 +132,7 @@ The first bin doesn't seem very intuitive. Let's try 4 bins instead of 5 by chan
 
 ```{r, message=FALSE}
 tm_shape(Chi_Zipsf) +
-  tm_polygons("Case.Rate...Cumulative",
+  tm_polygons("CaseRtWk39",
               fill.scale=tm_scale_intervals(style="jenks",
                                             values="BuPu",
                                             n=4),
@@ -131,16 +145,31 @@ tm_shape(Chi_Zipsf) +
 To explore potential disparities in COVID health outcomes, let's bring in pre-cleaned demographic, racial, and ethnic data from the [Opioid Environment Policy Scan database](https://geodacenter.github.io/opioid-policy-scan/). This data is orginally sourced from the American Community Survey 2018 5-year estimate, which you could also pull using the `tidycensus`.
 
 ```{r}
-CensusVar <- read.csv("data/DS01_Z.csv")
-head(CensusVar)
+#CensusVar <- read.csv("data/DS01_Z.csv")
+#head(CensusVar)
+
+CensusVar <- read.csv("https://github.com/healthyregions/oeps/raw/refs/heads/main/backend/oeps/data/tables/zcta-2018.csv")
+glimpse(CensusVar)
+```
+
+
+```{r}
+
+CensusVar2 <- CensusVar %>%
+                  select(HEROP_ID,Ovr65P,EduNoHsP,PovP,Ovr65P,BlackP,WhiteP,HispP)
+glimpse(CensusVar2)
+
+CensusVar2$Zcta <- substr(CensusVar2$HEROP_ID, 6,12)
+glimpse(CensusVar2)
 ```
 
 Merge to our master Zip Code dataset. There are many more zip codes than we have in our Chicago dataset, so we only keep the zip codes in the main dataset, Chi_Zipf. In this case, let's test the merge to see if we retain 61 observations.
 
 ```{r}
-Chi_Zips_test <- merge(Chi_Zipsf, CensusVar, by.x = "zip", by.y = "ZCTA", all.x=TRUE)
+Chi_Zipsf.new <- merge(Chi_Zipsf, CensusVar2, by.x = "zip", by.y = "Zcta", all.x=TRUE)
 
-dim(Chi_Zips_test)
+dim(Chi_Zipsf.new)
+glimpse(Chi_Zipsf.new)
 ```
 
 
@@ -151,42 +180,40 @@ Can you think of more efficient ways to run this code? There are also other `tma
 
 ```{r message=FALSE, warning=FALSE}
 
-Chi_Zipsf <- Chi_Zips_test
-
-tm_shape(Chi_Zipsf) + 
-  tm_fill("ovr65P",
+tm_shape(Chi_Zipsf.new) + 
+  tm_fill("Ovr65P",
           fill.scale=tm_scale_intervals(style='jenks',
                                         values='BuPu',
                                         n=4))
 ```
 
 ```{r warning=FALSE, message=FALSE}
-COVID <- tm_shape(Chi_Zipsf) + 
-  tm_fill("Case.Rate...Cumulative",
+COVID <- tm_shape(Chi_Zipsf.new) + 
+  tm_fill("CaseRtWk39",
           fill.scale  = tm_scale_intervals(style='jenks', values='Reds', n=4),
           fill.legend = tm_legend("COVID Rt"))
 
-Senior <- tm_shape(Chi_Zipsf) + 
-  tm_fill("ovr65P", fill.scale = tm_scale_intervals(style="jenks", 
+Senior <- tm_shape(Chi_Zipsf.new) + 
+  tm_fill("Ovr65P", fill.scale = tm_scale_intervals(style="jenks", 
                                                    values="BuPu", n=4)) 
 
-NoHS <- tm_shape(Chi_Zipsf) + 
-  tm_fill("noHSP", fill.scale = tm_scale_intervals(style='jenks', 
+EduNoHsP <- tm_shape(Chi_Zipsf.new) + 
+  tm_fill("EduNoHsP", fill.scale = tm_scale_intervals(style='jenks', 
                                                    values='BuPu', n=4))
 
-BlkP <- tm_shape(Chi_Zipsf) + 
-  tm_fill("blackP", fill.scale = tm_scale_intervals(style='jenks',
+BlkP <- tm_shape(Chi_Zipsf.new) + 
+  tm_fill("BlackP", fill.scale = tm_scale_intervals(style='jenks',
                                                     values='BuPu', n=4)) 
 
-Latnx <- tm_shape(Chi_Zipsf) + 
-  tm_fill("hispP", fill.scale = tm_scale_intervals(style='jenks', 
+Latnx <- tm_shape(Chi_Zipsf.new) + 
+  tm_fill("HispP", fill.scale = tm_scale_intervals(style='jenks', 
                                                    values='BuPu', n=4))
 
-WhiP <- tm_shape(Chi_Zipsf) + 
-  tm_fill("whiteP", fill.scale = tm_scale_intervals(style='jenks', 
+WhiP <- tm_shape(Chi_Zipsf.new) + 
+  tm_fill("WhiteP", fill.scale = tm_scale_intervals(style='jenks', 
                                                     values='BuPu', n=4)) 
 
-tmap_arrange(COVID, Senior, NoHS, BlkP, Latnx, WhiP)
+tmap_arrange(COVID, Senior, EduNoHsP, BlkP, Latnx, WhiP)
 ```
 
 From the results, we see that cumulative COVID outcomes for one week in September 2020 seemed to have some geographic correlation with the Latinx/Hispanic community in Chicago. At the same time, low high school diploma rates are also concentrated in these areas, and there is some intersection with other variables considered. What are additional variables you could bring in to refine your approach? Perhaps percentage of essential workers; a different age group; internet access? What about linking in health outcomes like Asthma, Hypertension, and more at a similar scale?

@@ -10,7 +10,7 @@ Let's look at the most stable choropleth map from the last exercise. If you took
 ```{r message=FALSE}
 library(sf)
 library(tmap)
-Chi_Zipsf <- st_read("data/ChiZipMaster.geojson")
+Chi_Zipsf <- st_read("data/ChiZipMaster2.geojson")
 ```
 
 After inspecting your dataset again, map your variable of interest, *Cumulative Covid Case Rate*, developed previously. 
@@ -19,11 +19,11 @@ After inspecting your dataset again, map your variable of interest, *Cumulative 
 # head(Chi_Zipsf) 
 
 tm_shape(Chi_Zipsf) +
-  tm_polygons("Case.Rate...Cumulative", 
+  tm_polygons("CaseRtWk39", 
               style="jenks", pal="BuPu",
               legend.hist=T, n=4,
               title = "COVID Case Rate", ) + 
-  tm_scale_bar(position = "left") + 
+ # tm_scale_bar(position = "left") + 
   tm_layout(legend.outside = TRUE, legend.outside.position = "right")
 
 ```
@@ -38,6 +38,10 @@ Install the package, if you haven't done so already, and load. For more details 
 
 ```{r message=FALSE}
 # install.packages("rgeoda)
+
+library(sf)
+library(tmap)
+Chi_Zipsf <- st_read("data/ChiZipMaster2.geojson")
 library(rgeoda)
 ```
 
@@ -47,9 +51,21 @@ library(rgeoda)
 Next, we'll generate multiple spatial weightws for comparison and hypothesis generation. A more local spatial neighbor weight, like rook, will assume less interaction/influence across space. When we create a queen contiguity weight with 2 orders, meaning influence may be up to 2 neighbors away, we specify that lower orders are also included.
 
 ```{r}
-w.rook <- rook_weights(Chi_Zipsf)
-#w.queen <- queen_weights(Chi_Zipsf)
-#w.queen2 <- queen_weights(Chi_Zipsf, order = 2, include_lower_order = TRUE)
+
+## Data cleaning
+Chi_Zipsf.2 <- Chi_Zipsf[!st_is_empty(Chi_Zipsf), ]
+
+head(Chi_Zipsf.2)
+
+Chi_Zipsf.3435 <- st_transform(Chi_Zipsf.2, 3435)
+str(Chi_Zipsf.3435)
+
+
+## this works!
+w.rook <- rook_weights(Chi_Zipsf.3435)
+w.queen <- queen_weights(Chi_Zipsf.3435)
+w.queen2 <- queen_weights(Chi_Zipsf.3435, order = 2, include_lower_order = TRUE)
+
 ```
 
 ## Calculate LISA
@@ -57,11 +73,11 @@ w.rook <- rook_weights(Chi_Zipsf)
 Next, we calculate our Local Moran's I (LISA). The default assumes 999 permutations; we can try 499 permutations for one case to compare results 
 
 ```{r}
-lisa.rook <- local_moran(w.rook, Chi_Zipsf['Case.Rate...Cumulative'], permutations = 999)
+lisa.rook <- local_moran(w.rook, Chi_Zipsf.3435['Case.Rate...Cumulative'], permutations = 999)
 
-lisa.queen2 <- local_moran(w.queen2, Chi_Zipsf['Case.Rate...Cumulative'], permutations = 999)
+lisa.queen2 <- local_moran(w.queen2, Chi_Zipsf.3435['Case.Rate...Cumulative'], permutations = 999)
 
-lisa.queen2.449 <- local_moran(w.queen2, Chi_Zipsf['Case.Rate...Cumulative'], permutations = 449)
+lisa.queen2.449 <- local_moran(w.queen2, Chi_Zipsf.3435['Case.Rate...Cumulative'], permutations = 449)
 
 ```
 
@@ -73,7 +89,7 @@ lisa_colors.rook <- lisa_colors(lisa.rook)
 lisa_labels.rook <- lisa_labels(lisa.rook)
 lisa_clusters.rook <- lisa_clusters(lisa.rook)
 
-plot(st_geometry(Chi_Zipsf), 
+plot(st_geometry(Chi_Zipsf.3435), 
      col=sapply(lisa_clusters.rook, function(x){return(lisa_colors.rook[[x+1]])}), 
      border = "#333333", lwd=0.2)
 title(main = "Covid Case Rt LISA (Rook)")

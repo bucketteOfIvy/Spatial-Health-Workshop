@@ -110,7 +110,7 @@ tmap_mode("plot")
 
 ## 1st layer (gets plotted first)
 tm_shape(Chi_Zipsf) + 
-  tm_polygons("Case.Rate...Cumulative",
+  tm_polygons("CaseRtWk39",
               fill.scale = tm_scale_intervals(style='jenks', 
                                               values='brewer.bu_pu',
                                               n=4),
@@ -183,7 +183,7 @@ Let's pull what we learned in the last tutorial, and map everything at once. Whi
 ```{r, message=FALSE}
 ## Zip Code Choropleth Map
   tm_shape(Chi_Zipsf) + 
-    tm_polygons("Case.Rate...Cumulative",
+    tm_polygons("CaseRtWk39",
                 fill.scale = tm_scale_intervals(style='jenks',
                                                 values='brewer.bu_pu',
                                                 n=4),
@@ -208,7 +208,7 @@ In RStudio, you could zoom into the plot you created to get a better view. Save 
 Save any data you need from this session.
 
 ```{r eval=FALSE}
-st_write(methadoneSf, dsn = "data/methadoneMOUD.geojson")
+#st_write(methadoneSf, dsn = "data/methadoneMOUD.geojson")
 ```
 
 
