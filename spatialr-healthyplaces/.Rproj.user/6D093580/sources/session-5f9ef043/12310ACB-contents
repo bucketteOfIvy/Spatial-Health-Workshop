@@ -1,0 +1,27 @@
+# Intro2RSpatialMed
+
+A workshop to learn an introduction to GIS & Spatial Analysis for health. 
+
+- [Live Workbook](https://healthyregions.github.io/r-spatial-healthy-places)
+- [Data for Workshop](https://github.com/healthyregions/r-spatial-healthy-places/blob/main/data)
+
+SER 2026 Workshop Details
+- [Sign In](https://docs.google.com/forms/d/1ySfswbC7pPDRADftzb_hGJHcEsGlaBMvchfUbt3aTh4/preview)
+- [Slide Deck](https://docs.google.com/presentation/d/1WR3-d4IU-WDSVN4oFgFjxbZADtMAExWUBFmqVuvum84/edit?slide=id.gddd9c4a96c_1_138#slide=id.gddd9c4a96c_1_138)
+
+Sweden 2025 Workshop Details
+- [Slide Deck](https://docs.google.com/presentation/d/1FDbxNdHZ4D75wRWKchArLYSGatzgEsDDJr2S2EzCfHs/edit?usp=sharing)
+
+SER 2023 Workshop Details
+
+- [Sign In](https://docs.google.com/forms/d/1eUL4kHaujNVgLnlmSA9zRkSVLp-s1OPoAIls0_gDDEc/edit)
+- [Slide Deck](https://docs.google.com/presentation/d/1Og-RmBloA2_thTKQIP9dAfVMBf_tS39U1V6ZlbVLWrY/edit#slide=id.p)
+
+SER 2022 Workshop Details
+
+- [Sign In](https://docs.google.com/forms/d/e/1FAIpQLSf_TC0sxXDriCbnRtol6exTMzRZTugSMoctoz1uu0cijnktAQ/viewform)
+- [Slide Deck](https://docs.google.com/presentation/d/1c1RirI9Jk_Pk99n2nuCIFZYoeBRzfHat6nR6-ZQGhrI/edit?usp=sharing)
+- [Claim CME credits](https://cme.uchicago.edu/SpatialAnalysis22)
+
+Trouble Shooting Tips
+- [Change between wide and long format](http://www.cookbook-r.com/Manipulating_data/Converting_data_between_wide_and_long_format/)

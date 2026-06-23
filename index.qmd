@@ -12,17 +12,17 @@ This workbook is a 3-4 hour, fast-paced overview of mapping, GIScience, and spat
 
 This workbook is designed to work with a live component, where the concepts are shared with more details and followed by live coding. Check out these links to stay updated:
 
-- Short link to this workbook: [go.illinois.edu/SpatialR](https://go.illinois.edu/SpatialR)
+- Short link to this workbook: [go.illinois.edu/SpatialR](https://go.illinois.edu/SpatialR-HealthyPlaces)
 - Slide deck for latest workshop: [SER 2026](https://docs.google.com/presentation/d/1WR3-d4IU-WDSVN4oFgFjxbZADtMAExWUBFmqVuvum84/edit?slide=id.gddd9c4a96c_1_138#slide=id.gddd9c4a96c_1_138)
 
-In addition to this workbook, you'll need a working instance of R and the data. You can also clone the [Github repository](https://github.com/healthyregions/Spatial-Health-Workshop) that hosts this workbook to get direct access to all the working code, [data](https://github.com/healthyregions/Spatial-Health-Workshop/blob/main/data), and additional items.
+In addition to this workbook, you'll need a working instance of R and the data. You can also clone the [Github repository](https://github.com/healthyregions/r-spatial-healthy-places) that hosts this workbook to get direct access to all the working code, [data](https://github.com/healthyregions/r-spatial-healthy-places/blob/main/data), and additional items.
 
 ```{r echo=FALSE}
 
 library(downloadthis)
 
 download_link(
-  link = "https://github.com/healthyregions/Spatial-Health-Workshop/blob/main/data/Data-2026.zip",
+  link = "https://github.com/healthyregions/r-spatial-healthy-places/blob/main/data/Data-2026.zip",
   button_label = "Download Workshop Data",
   button_type = "primary",
   has_icon = TRUE,
