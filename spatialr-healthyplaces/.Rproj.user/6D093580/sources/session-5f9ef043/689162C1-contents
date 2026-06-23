@@ -11,6 +11,7 @@ book:
     - choropleth.qmd
     - points.qmd
     - access-metrics.qmd
+    
 
 bibliography: references.bib
 
